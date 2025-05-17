@@ -1,0 +1,29 @@
+ Completed setting up Backend with Express and MongoDB
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Sat May 17 17:44:56 2025 +0530
+#
+# On branch main
+# Your branch is ahead of 'origin/main' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# Changes to be committed:
+#	modified:   package-lock.json
+#	modified:   package.json
+#	new file:   src/db/Mongo.database.js
+#	new file:   src/models/Project.model.js
+#	new file:   src/models/Task.model.js
+#	new file:   src/models/User.model.js
+#	new file:   src/server.js
+#	new file:   src/utils/Db.utils.js
+#
+# Changes not staged for commit:
+#	modified:   ../.gitignore
+#
+# Untracked files:
+#	../eslint.config.mjs
+#	../package-lock.json
+#	../package.json
+#
