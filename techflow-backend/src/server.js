@@ -3,6 +3,8 @@ import connectToDb from "./db/Mongo.database.js";
 import dotenv from "dotenv";
 dotenv.config();
 import cors from "cors";
+import router from "./routes/index.routes.js";
+
 const app = express();
 
 app.use(express.json());
@@ -14,6 +16,8 @@ app.use(
 
 const PORT = process.env.PORT || 5000;
 
+app.use("/api/v1", router);
+
 app.get("/", (req, res) => {
   res.send("Hello From the server");
 });
@@ -21,7 +25,7 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   try {
     await connectToDb();
-    app.listen(PORT, async () => {
+    app.listen(PORT, () => {
       console.log(`Server is running on PORT ${PORT} ✅`);
     });
   } catch (err) {
