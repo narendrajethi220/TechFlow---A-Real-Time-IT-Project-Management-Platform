@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import cors from "cors";
 import router from "./routes/index.routes.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use("/api/v1", router);
 app.get("/", (req, res) => {
   res.send("Hello From the server");
 });
+
+app.use(errorMiddleware);
 
 const startServer = async () => {
   try {

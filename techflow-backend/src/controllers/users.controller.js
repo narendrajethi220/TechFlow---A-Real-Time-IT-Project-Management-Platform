@@ -7,15 +7,14 @@ dotenv.config();
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || "JWT_SECRET_KEY";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
 
-const registrationController = async (req, res) => {
+const registrationController = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
     const userExists = await User.findOne({ email: email });
     if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: "User Already Exist",
-      });
+      const error = new Error("User Already Exists");
+      error.statusCode = 400;
+      return next(error);
     }
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
@@ -33,29 +32,23 @@ const registrationController = async (req, res) => {
         user: { id: newlyCreatedUser, name, email, role },
       });
     } else {
-      res.status(400).json({
-        success: false,
-        message: "Unable to register User",
-      });
+      const error = new Error("Unable to register User");
+      error.statusCode = 401;
+      return next(error);
     }
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Internal Error while Registering User, Please try again !",
-      data: err.message,
-    });
+    next(err);
   }
 };
 
-const loginController = async (req, res) => {
+const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const userExists = await User.findOne({ email: email });
     if (!userExists) {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid User Credentials",
-      });
+      const error = new Error("Invalid User Credentials");
+      error.statusCode = 401;
+      return next(error);
     }
     const isCorrectPassword = await bcryptjs.compare(
       password,
@@ -63,10 +56,9 @@ const loginController = async (req, res) => {
     );
 
     if (!isCorrectPassword) {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid User Credentials",
-      });
+      const error = new Error("Invalid User Credentials");
+      error.statusCode = 401;
+      return next(error);
     }
 
     const accessToken = jwt.sign(
@@ -87,11 +79,7 @@ const loginController = async (req, res) => {
       accessToken,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Internal Error while Login User",
-      data: err.message,
-    });
+    return next(err);
   }
 };
 
