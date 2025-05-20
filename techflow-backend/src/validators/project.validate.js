@@ -14,11 +14,7 @@ const projectSchema = z.object({
       invalid_type_error: "Description must of type String",
     })
     .min(10, { message: "Description is too short" }),
-  owner: z.string({
-    required_error: "Owner is required",
-    invalid_type_error: "Invalid Id Format",
-  }),
-  status: z.enum(["Active", "On-Hold", "Completed"]).default("Active"),
+  status: z.enum(["Active", "On-Hold", "Completed"]).default("On-Hold"),
   dueDate: z
     .preprocess(
       (arg) =>
@@ -31,4 +27,4 @@ const projectSchema = z.object({
   members: z.array(z.string({ invalid_type_error: "Invalid Id Format" })),
 });
 
-export default { projectSchema };
+export default projectSchema;
