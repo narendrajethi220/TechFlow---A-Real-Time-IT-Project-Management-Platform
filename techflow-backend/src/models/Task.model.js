@@ -5,7 +5,7 @@ const taskSchema = mongoose.Schema(
     title: {
       type: String,
       required: true,
-      trime: true,
+      trim: true,
       minLength: 3,
     },
     description: {
@@ -26,7 +26,7 @@ const taskSchema = mongoose.Schema(
     status: {
       type: String,
       enums: ["ToDo", "In-Progress", "Done"],
-      default: "ToDO",
+      default: "ToDo",
     },
     dueDate: {
       type: Date,
