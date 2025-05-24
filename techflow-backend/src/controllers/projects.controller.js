@@ -1,8 +1,22 @@
 import Project from "../models/Project.model.js";
+import User from "../models/User.model.js";
 
 const createProject = async (req, res, next) => {
   try {
+    if (req.userInfo.role !== "admin") {
+      const error = new Error("Only admins can create Projects");
+      error.statusCode = 403;
+      return next(error);
+    }
     const { title, description, status, dueDate, members } = req.body;
+
+    const validateUsers = await User.find({ _id: { $in: members } });
+    if (validateUsers.length !== members.length) {
+      const error = new Error("One or more member IDs are invalid");
+      error.statusCode = 400;
+      return next(error);
+    }
+
     const newlyCreatedProject = new Project({
       title,
       description,
@@ -12,10 +26,14 @@ const createProject = async (req, res, next) => {
       members,
     });
     await newlyCreatedProject.save();
+    const populatedProject = await Project.findById(newlyCreatedProject._id)
+      .populate("owner", "name email role")
+      .populate("members", "name email role");
+
     res.status(201).json({
       success: true,
       message: "Project Created Successfully",
-      project: newlyCreatedProject,
+      project: populatedProject,
     });
   } catch (err) {
     next(err);
@@ -41,6 +59,23 @@ const updateProject = async (req, res, next) => {
   try {
     const projectId = req.params.id;
     const updates = req.body;
+    if (updates.members) {
+      const validUsers = await User.find({ _id: { $in: updates.members } });
+      if (validUsers.length !== updates.members.length) {
+        const error = new Error("One or more IDs are invalid");
+        error.statusCode = 400;
+        return next(error);
+      }
+    }
+    const project = await Project.findById(projectId);
+    if (
+      req.userInfo.role !== "admin" &&
+      project.owner.toString() !== req.userInfo.userId
+    ) {
+      const error = new Error("Only Admins or owners can update projects");
+      error.statusCode = 403;
+      return next(error);
+    }
     const updatedProject = await Project.findByIdAndUpdate(
       projectId,
       { $set: updates },
@@ -65,6 +100,11 @@ const updateProject = async (req, res, next) => {
 
 const deleteProjects = async (req, res, next) => {
   try {
+    if (req.userInfo.role !== "admin") {
+      const error = new Error("Only admins can delete projects");
+      error.statusCode = 403;
+      return next(error);
+    }
     const projectId = req.params.id;
     const deletedProject = await Project.findByIdAndDelete(projectId);
     if (!deletedProject) {

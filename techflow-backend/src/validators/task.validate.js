@@ -1,4 +1,5 @@
 import { z } from "zod";
+import mongoose from "mongoose";
 
 const taskSchema = z.object({
   title: z
@@ -15,13 +16,20 @@ const taskSchema = z.object({
     })
     .trim()
     .min(10, { message: "Minimum length should be 10 char" }),
-  projectId: z.string({
-    required_error: "Project ID is required",
-    invalid_type_error: "Project ID must be a string",
-  }),
+  projectId: z
+    .string({
+      required_error: "Project ID is required",
+      invalid_type_error: "Project ID must be a string",
+    })
+    .refine((id) => !id || mongoose.isValidObjectId(id), {
+      message: "Invalid user Id format",
+    }),
   assignedTo: z
     .string({
       invalid_type_error: "Assigned user ID must be a string",
+    })
+    .refine((id) => !id || mongoose.isValidObjectId(id), {
+      message: "Invalid user Id format",
     })
     .optional(),
   status: z.enum(["ToDo", "In-Progress", "Done"]).default("ToDo"),

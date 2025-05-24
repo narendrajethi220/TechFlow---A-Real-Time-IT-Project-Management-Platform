@@ -8,6 +8,6 @@ const router = Router();
 // Future routes: projects, tasks, etc.
 router.use("/user", userRoutes);
 router.use("/project", authMiddleware, projectRoutes);
-router.use("/task", authMiddleware, taskRoutes);
+router.use("/project/:projectId/task", authMiddleware, taskRoutes);
 
 export default router;

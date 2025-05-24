@@ -5,6 +5,17 @@ const createTask = async (req, res, next) => {
   try {
     const { title, description, assignedTo, dueDate, projectId, status } =
       req.body;
+    const project = await Project.findById(projectId);
+    if (!project) {
+      const error = new Error("No Project Found for respective ID");
+      error.statusCode = 404;
+      return next(error);
+    }
+    if (!project.members.includes(req.userInfo.userId)) {
+      const error = new Error("User not a project member");
+      error.statusCode = 400;
+      return next(error);
+    }
     const newlyCreatedTask = new Task({
       title,
       description,
@@ -14,6 +25,16 @@ const createTask = async (req, res, next) => {
       dueDate,
       status,
     });
+
+    if (assignedTo) {
+      const user = await User.findById(assignedTo);
+      if (!user || !project.members.includes(assignedTo)) {
+        const error = new Error("Assigned User is not a project member");
+        error.statusCode = 400;
+        return next(error);
+      }
+    }
+
     await newlyCreatedTask.save();
 
     const populatedTask = await Task.findById(newlyCreatedTask._id)
@@ -33,7 +54,7 @@ const createTask = async (req, res, next) => {
 
 const readTask = async (req, res, next) => {
   try {
-    const projectId = req.params.id;
+    const projectId = req.params.projectId;
     const projectExists = await Project.findById(projectId);
     if (!projectExists) {
       const error = new Error("No Project Found");

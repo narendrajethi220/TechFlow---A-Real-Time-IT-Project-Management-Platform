@@ -16,7 +16,7 @@ router.post(
 router.get("/", projectController.readProjects);
 router.put(
   "/:id",
-  validateRequest(projectSchema),
+  validateRequest(projectSchema.partial()),
   projectController.updateProject
 );
 router.delete("/:id", adminMiddleware, projectController.deleteProjects);
